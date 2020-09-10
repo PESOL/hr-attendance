@@ -22,12 +22,6 @@ class RecomputeTheoreticalAttendance(models.TransientModel):
 
     def action_recompute(self):
         self.ensure_one()
-        attendances = self.env["hr.attendance"].search(
-            [
-                ("employee_id", "in", self.employee_ids.ids),
-                ("check_in", ">=", self.date_from),
-                ("check_out", "<=", self.date_to),
-            ]
-        )
-        attendances._compute_theoretical_hours()
+        self.env["hr.attendance"]._update_theoretical_attendance(
+            self.date_from, self.date_to, employee_ids= self.employee_ids.ids)
         return {"type": "ir.actions.act_window_close"}
