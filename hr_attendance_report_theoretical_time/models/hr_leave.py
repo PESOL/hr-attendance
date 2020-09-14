@@ -35,11 +35,5 @@ class HrLeave(models.Model):
             to_datetime = record.date_to.replace(
                 hour=23, minute=59, second=59, microsecond=99999
             )
-            to_recompute |= self.env["hr.attendance"].search(
-                [
-                    ("employee_id", "=", record.employee_id.id),
-                    ("check_in", ">=", from_datetime),
-                    ("check_in", "<=", to_datetime),
-                ]
-            )
-        to_recompute._compute_theoretical_hours()
+            self.env["hr.attendance"]._update_theoretical_attendance(
+                from_datetime, to_datetime, employee_ids = record.employee_id)

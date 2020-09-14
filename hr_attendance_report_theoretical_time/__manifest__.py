@@ -18,5 +18,6 @@
         "reports/hr_attendance_theoretical_time_report_views.xml",
         "wizards/recompute_theoretical_attendance_views.xml",
         "wizards/wizard_theoretical_time.xml",
+        "data/hr_attendance_theoretical_time_cron.xml"
     ],
 }

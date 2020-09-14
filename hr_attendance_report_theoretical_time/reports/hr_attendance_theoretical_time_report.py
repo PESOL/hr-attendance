@@ -23,6 +23,7 @@ class HrAttendanceTheoreticalTimeReport(models.Model):
     worked_hours = fields.Float(string="Worked", readonly=True)
     theoretical_hours = fields.Float(string="Theoric", readonly=True)
     difference = fields.Float(readonly=True)
+    time_off = fields.Float(string="Time Off", readonly=True)
 
     def _select(self):
         # We put "max" aggregation function for theoretical hours because
@@ -34,7 +35,8 @@ class HrAttendanceTheoreticalTimeReport(models.Model):
             check_in::date AS date,
             sum(worked_hours) AS worked_hours,
             sum(theoretical_hours) AS theoretical_hours,
-            sum(theoretical_hours-worked_hours) AS difference
+            sum(time_off) AS time_off,
+            sum(worked_hours-theoretical_hours) AS difference
             """
 
     def _from(self):
@@ -90,3 +92,20 @@ CREATE or REPLACE VIEW %s as (
         )[
             "hours"
         ]
+
+    @api.model
+    def _compute_leave_hours(self, employee, date):
+        """Get leave hours for the day where the check-in is done for that
+        employee.
+        """
+        if not employee.resource_id.calendar_id:
+            return 0
+        tz = employee.resource_id.calendar_id.tz
+        hours = employee._get_leave_days_data(
+            datetime.combine(date, time(0, 0, 0, 0, tzinfo=pytz.timezone(tz))),
+            datetime.combine(
+                date, time(23, 59, 59, 99999, tzinfo=pytz.timezone(tz)))
+        )[
+            "hours"
+        ]
+        return hours if hours >= 0 else 0

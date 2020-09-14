@@ -22,13 +22,10 @@ class HrHolidaysPublicLine(models.Model):
             date = fields.Date.from_string(date)
         from_datetime = datetime.combine(date, time(0, 0, 0, 0))
         to_datetime = datetime.combine(date, time(23, 59, 59, 99999))
-        records = self.env["hr.attendance"].search(
-            [
-                ("check_in", ">=", fields.Datetime.to_string(from_datetime)),
-                ("check_in", "<=", fields.Datetime.to_string(to_datetime)),
-            ]
+        self.env["hr.attendance"]._update_theoretical_attendance(
+            fields.Datetime.to_string(from_datetime),
+            fields.Datetime.to_string(to_datetime),
         )
-        records._compute_theoretical_hours()
 
     @api.model_create_multi
     def create(self, vals_list):

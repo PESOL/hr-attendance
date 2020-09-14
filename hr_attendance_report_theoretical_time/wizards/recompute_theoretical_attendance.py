@@ -9,7 +9,7 @@ class RecomputeTheoreticalAttendance(models.TransientModel):
 
     employee_ids = fields.Many2many(
         comodel_name="hr.employee",
-        required=True,
+        required=False,
         string="Employees",
         help="Recompute these employees attendances",
     )
@@ -23,5 +23,5 @@ class RecomputeTheoreticalAttendance(models.TransientModel):
     def action_recompute(self):
         self.ensure_one()
         self.env["hr.attendance"]._update_theoretical_attendance(
-            self.date_from, self.date_to, employee_ids= self.employee_ids.ids)
+            self.date_from, self.date_to, employee_ids= self.employee_ids)
         return {"type": "ir.actions.act_window_close"}
